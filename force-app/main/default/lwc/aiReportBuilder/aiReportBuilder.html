@@ -163,7 +163,7 @@
                                     <tr key={record.Id} class="slds-hint-parent">
                                         <template for:each={tableHeaders} for:item="header">
                                             <td key={header} class="slds-var-p-around_small">
-                                                {getFieldValue(record, header)}
+                                                {record.fieldValues[header]}
                                             </td>
                                         </template>
                                     </tr>

@@ -415,6 +415,60 @@ export default class AiReportBuilder extends LightningElement {
     }
     
     /**
+     * @description Process query results for display
+     * @param {Object} results - Query results from Apex
+     * @private
+     */
+    _processResults(results) {
+        if (!results || !results.results || results.results.length === 0) {
+            this.displayedResults = [];
+            this.tableHeaders = [];
+            return;
+        }
+        
+        // Get all unique field names from results
+        const allFields = new Set();
+        results.results.forEach(record => {
+            Object.keys(record).forEach(field => {
+                allFields.add(field);
+            });
+        });
+        
+        // Convert to array and sort
+        this.tableHeaders = Array.from(allFields).sort();
+        
+        // Process records to add fieldValues property for template access
+        const processedResults = results.results.map(record => {
+            const processedRecord = { ...record };
+            processedRecord.fieldValues = {};
+            
+            this.tableHeaders.forEach(header => {
+                processedRecord.fieldValues[header] = record[header] || '-';
+            });
+            
+            return processedRecord;
+        });
+        
+        // Store processed results
+        this.queryResults = {
+            ...results,
+            results: processedResults
+        };
+        
+        // Update record count
+        this.recordCount = results.results.length;
+        
+        // Store generated SOQL
+        this.generatedSOQL = results.generatedSOQL || '';
+        
+        console.log('Results processed:', {
+            recordCount: this.recordCount,
+            tableHeaders: this.tableHeaders,
+            displayedResults: this.displayedResults
+        });
+    }
+    
+    /**
      * @description Cleanup component resources
      * @private
      */
