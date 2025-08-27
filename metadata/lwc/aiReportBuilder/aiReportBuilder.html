@@ -1,0 +1,211 @@
+<template>
+    <div class="slds-card slds-var-m-around_medium">
+        <!-- Header -->
+        <div class="slds-card__header slds-grid">
+            <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                <div class="slds-media__figure">
+                    <lightning-icon icon-name="utility:chat" size="small" 
+                                  alternative-text="Chat Interface"></lightning-icon>
+                </div>
+                <div class="slds-media__body">
+                    <h2 class="slds-card__header-title">
+                        <span class="slds-text-heading_small">AI Report Builder</span>
+                    </h2>
+                </div>
+            </header>
+        </div>
+
+        <!-- Body -->
+        <div class="slds-card__body slds-card__body_inner">
+            <!-- Query Input Section -->
+            <div class="slds-form-element slds-var-m-bottom_medium">
+                <label class="slds-form-element__label" for="query-input">
+                    <abbr class="slds-required" title="required">*</abbr>
+                    Enter your report request
+                </label>
+                <div class="slds-form-element__control">
+                    <div class="slds-input-has-icon slds-input-has-icon_right">
+                        <lightning-input id="query-input" 
+                                       type="text" 
+                                       placeholder="e.g., Show me accounts with AUM over 400k"
+                                       value={currentQuery}
+                                       onchange={handleQueryInput}
+                                       disabled={isProcessing}
+                                       required></lightning-input>
+                        <lightning-icon icon-name="utility:search" 
+                                      size="x-small" 
+                                      class="slds-input__icon slds-input__icon_right"
+                                      alternative-text="Search"></lightning-icon>
+                    </div>
+                </div>
+                <div class="slds-form-element__help">
+                    Describe what you want to see in natural language
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="slds-var-m-bottom_medium">
+                <lightning-button 
+                    variant="brand" 
+                    label="Generate Report" 
+                    onclick={handleQuerySubmit}
+                    disabled={isQueryDisabled}
+                    class="slds-var-m-right_x-small">
+                </lightning-button>
+                
+                <lightning-button 
+                    variant="neutral" 
+                    label="Clear Results" 
+                    onclick={handleClearResults}
+                    disabled={isClearDisabled}
+                    class="slds-var-m-right_x-small">
+                </lightning-button>
+
+                <lightning-button 
+                    variant="success" 
+                    label="Save as Report" 
+                    onclick={handleSaveReport}
+                    disabled={isSaveDisabled}
+                    icon-name="utility:save">
+                </lightning-button>
+            </div>
+
+            <!-- Loading State -->
+            <template if:true={isProcessing}>
+                <div class="slds-is-relative slds-var-p-around_medium">
+                    <lightning-spinner alternative-text="Processing your request..." 
+                                      size="medium" 
+                                      variant="brand">
+                    </lightning-spinner>
+                    <div class="slds-text-align_center slds-var-p-top_medium">
+                        <p class="slds-text-body_regular">AI is analyzing your request...</p>
+                    </div>
+                </div>
+            </template>
+
+            <!-- Error State -->
+            <template if:true={errorState}>
+                <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error" 
+                     role="alert">
+                    <span class="slds-assistive-text">error</span>
+                    <lightning-icon icon-name="utility:error" 
+                                  size="x-small" 
+                                  alternative-text="Error"
+                                  class="slds-var-m-right_x-small">
+                    </lightning-icon>
+                    <h2>{errorState}</h2>
+                </div>
+            </template>
+
+            <!-- Chat Messages -->
+            <template if:true={hasMessages}>
+                <div class="slds-var-m-bottom_medium">
+                    <h3 class="slds-text-heading_small slds-var-m-bottom_small">Conversation History</h3>
+                    <div class="slds-chat">
+                        <template for:each={messages} for:item="message">
+                            <div key={message.id} class="slds-chat-message">
+                                <div class="slds-chat-message__body">
+                                    <div class={messageClass}>
+                                        <div class="slds-chat-message__text">
+                                            <p class="slds-text-body_regular">{message.content}</p>
+                                        </div>
+                                        <div class="slds-chat-message__meta">
+                                            <span class="slds-text-body_small slds-text-color_weak">
+                                                {message.timestamp}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </template>
+
+            <!-- Results Section -->
+            <template if:true={hasResults}>
+                <div class="slds-var-m-bottom_medium">
+                    <div class="slds-grid slds-grid_align-spread slds-var-m-bottom_small">
+                        <h3 class="slds-text-heading_small">Query Results</h3>
+                        <div class="slds-text-body_small slds-text-color_weak">
+                            {recordCount} records found
+                        </div>
+                    </div>
+
+                    <!-- SOQL Query Display -->
+                    <div class="slds-var-m-bottom_medium">
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label">Generated SOQL</label>
+                            <div class="slds-form-element__control">
+                                <div class="slds-textarea">
+                                    <textarea readonly 
+                                              class="slds-textarea__input" 
+                                              rows="3">{generatedSOQL}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Results Table -->
+                    <div class="slds-table_container">
+                        <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                            <thead>
+                                <tr class="slds-line-height_reset">
+                                    <template for:each={tableHeaders} for:item="header">
+                                        <th key={header} class="slds-text-title_caps slds-var-p-around_small">
+                                            {header}
+                                        </th>
+                                    </template>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template for:each={displayedResults} for:item="record" for:index="index">
+                                    <tr key={record.Id} class="slds-hint-parent">
+                                        <template for:each={record.fieldValues} for:item="fieldValue" for:index="fieldIndex">
+                                            <td key={record.uniqueKey} class="slds-var-p-around_small">
+                                                {fieldValue}
+                                            </td>
+                                        </template>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination Info -->
+                    <template if:true={hasMoreResults}>
+                        <div class="slds-text-align_center slds-var-p-top_small">
+                            <p class="slds-text-body_small slds-text-color_weak">
+                                Showing first {maxDisplayResults} of {recordCount} results
+                            </p>
+                        </div>
+                    </template>
+                </div>
+            </template>
+
+            <!-- No Results State -->
+            <template if:false={hasResults}>
+                <template if:false={isProcessing}>
+                    <div class="slds-illustration slds-illustration_small slds-var-m-top_medium">
+                        <div class="slds-text-longform">
+                            <h3 class="slds-text-heading_medium">Ready to build reports</h3>
+                            <p class="slds-text-body_regular">
+                                Enter a natural language query above to generate a Salesforce report. 
+                                Try asking for "accounts with high revenue" or "contacts created this month."
+                            </p>
+                        </div>
+                    </div>
+                </template>
+            </template>
+        </div>
+
+        <!-- Footer -->
+        <div class="slds-card__footer">
+            <div class="slds-grid slds-grid_align-end">
+                <div class="slds-text-body_small slds-text-color_weak">
+                    Powered by AI • {currentTimestamp}
+                </div>
+            </div>
+        </div>
+    </div>
+</template>

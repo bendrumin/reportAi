@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>QueryHistory__c.Error_Message__c</members>
+        <members>QueryHistory__c.Execution_Time__c</members>
+        <members>QueryHistory__c.Generated_SOQL__c</members>
+        <members>QueryHistory__c.Query_Date__c</members>
+        <members>QueryHistory__c.Record_Count__c</members>
+        <members>QueryHistory__c.Session_ID__c</members>
+        <members>QueryHistory__c.Success__c</members>
+        <members>QueryHistory__c.User_Query__c</members>
+        <members>QueryHistory__c.User__c</members>
+        <name>CustomField</name>
+    </types>
+    <types>
+        <members>QueryHistory__c</members>
+        <name>CustomObject</name>
+    </types>
+    <types>
+        <members>aiReportBuilder</members>
+        <name>LightningComponentBundle</name>
+    </types>
+    <version>64.0</version>
+</Package>

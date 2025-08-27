@@ -9,10 +9,9 @@
 import { LightningElement, api, track, wire } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { refreshApex } from '@salesforce/apex';
-// Temporarily commented out Apex imports for deployment testing
-// import processQuery from '@salesforce/apex/AIReportService.processQuery';
-// import createReportFromResults from '@salesforce/apex/ReportGenerator.createReportFromResults';
-// import getUserQueryHistory from '@salesforce/apex/QueryHistory.logQueryExecution';
+import processQuery from '@salesforce/apex/AIReportService.processQuery';
+import createReportFromResults from '@salesforce/apex/ReportGenerator.createReportFromResults';
+import getUserQueryHistory from '@salesforce/apex/QueryHistory.getUserQueryHistory';
 
 /**
  * AI Report Builder Component
@@ -198,19 +197,9 @@ export default class AiReportBuilder extends LightningElement {
         try {
             this._addMessage('user', this._currentQuery);
             
-            // Temporarily commented out for deployment testing
-            // const result = await processQuery({ 
-            //     query: this._currentQuery 
-            // });
-            
-            // Mock response for testing
-            const result = {
-                success: true,
-                results: [],
-                explanation: 'Apex classes not yet deployed - this is a test response',
-                recordCount: 0,
-                soqlQuery: 'SELECT Id FROM Account LIMIT 0'
-            };
+            const result = await processQuery({ 
+                query: this._currentQuery 
+            });
             
             if (result.success) {
                 this.queryResults = result;
@@ -337,12 +326,11 @@ export default class AiReportBuilder extends LightningElement {
             
             const reportName = `AI Report - ${this._currentQuery.substring(0, 50)}`;
             
-            // Temporarily commented out for deployment testing
-            // const reportId = await createReportFromResults({
-            //     reportName: reportName,
-            //     queryResults: this.queryResults.results,
-            //     soqlQuery: this.queryResults.soqlQuery
-            // });
+            const reportId = await createReportFromResults({
+                reportName: reportName,
+                queryResults: this.queryResults.results,
+                soqlQuery: this.queryResults.soqlQuery
+            });
             
             this._showSuccessToast('Report Saved', 
                 `Report "${reportName}" has been created successfully.`);
@@ -363,13 +351,9 @@ export default class AiReportBuilder extends LightningElement {
      */
     async _loadQueryHistory() {
         try {
-            // Temporarily commented out for deployment testing
-            // const history = await getUserQueryHistory({
-            //     limitCount: AiReportBuilder.MAX_HISTORY_RECORDS
-            // });
-            
-            // Mock history for testing
-            const history = [];
+            const history = await getUserQueryHistory({
+                limitCount: AiReportBuilder.MAX_HISTORY_RECORDS
+            });
             
             if (history && history.length > 0) {
                 this._queryHistory = history.map(record => ({
