@@ -35,10 +35,17 @@ global with sharing class QueryHistory {
                 Execution_Time__c = executionTime,
                 Success__c = success,
                 Error_Message__c = errorMessage,
-                User__c = UserInfo.getUserId(),
                 Query_Date__c = System.now(),
                 Session_ID__c = getCurrentSessionId()
             );
+            
+            // Try to set User__c if accessible, but don't fail if not
+            try {
+                history.User__c = UserInfo.getUserId();
+            } catch (Exception userEx) {
+                System.debug(LoggingLevel.WARN, 'Could not set User__c: ' + userEx.getMessage());
+                // Continue without user reference
+            }
             
             insert history;
             
