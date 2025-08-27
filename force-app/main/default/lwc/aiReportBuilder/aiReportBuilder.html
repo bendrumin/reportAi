@@ -162,7 +162,7 @@
                                 <template for:each={displayedResults} for:item="record" for:index="index">
                                     <tr key={record.Id} class="slds-hint-parent">
                                         <template for:each={record.fieldValues} for:item="fieldValue" for:index="fieldIndex">
-                                            <td key={record.Id + '-' + fieldIndex} class="slds-var-p-around_small">
+                                            <td key={record.uniqueKey} class="slds-var-p-around_small">
                                                 {fieldValue}
                                             </td>
                                         </template>

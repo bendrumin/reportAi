@@ -441,6 +441,7 @@ export default class AiReportBuilder extends LightningElement {
         const processedResults = results.results.map(record => {
             const processedRecord = { ...record };
             processedRecord.fieldValues = [];
+            processedRecord.uniqueKey = record.Id || `record-${Math.random().toString(36).substr(2, 9)}`;
             
             this.tableHeaders.forEach(header => {
                 processedRecord.fieldValues.push(record[header] || '-');
