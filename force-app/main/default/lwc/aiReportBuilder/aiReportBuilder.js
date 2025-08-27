@@ -423,4 +423,17 @@ export default class AiReportBuilder extends LightningElement {
         this.messages = [];
         this.queryResults = {};
     }
+    
+    /**
+     * @description Get field value from record with fallback
+     * @param {Object} record - Record object
+     * @param {string} fieldName - Field name
+     * @returns {string} Field value or fallback
+     */
+    getFieldValue(record, fieldName) {
+        if (record && record[fieldName]) {
+            return record[fieldName];
+        }
+        return '-';
+    }
 }

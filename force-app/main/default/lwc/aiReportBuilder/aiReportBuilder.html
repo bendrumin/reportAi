@@ -163,12 +163,7 @@
                                     <tr key={record.Id} class="slds-hint-parent">
                                         <template for:each={tableHeaders} for:item="header">
                                             <td key={header} class="slds-var-p-around_small">
-                                                <template if:true={record[header]}>
-                                                    {record[header]}
-                                                </template>
-                                                <template if:false={record[header]}>
-                                                    <span class="slds-text-color_weak">-</span>
-                                                </template>
+                                                {getFieldValue(record, header)}
                                             </td>
                                         </template>
                                     </tr>
