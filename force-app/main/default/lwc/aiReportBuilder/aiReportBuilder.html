@@ -57,7 +57,7 @@
                     variant="neutral" 
                     label="Clear Results" 
                     onclick={handleClearResults}
-                    disabled={!hasResults}
+                    disabled={isClearDisabled}
                     class="slds-var-m-right_x-small">
                 </lightning-button>
 
@@ -65,7 +65,7 @@
                     variant="success" 
                     label="Save as Report" 
                     onclick={handleSaveReport}
-                    disabled={!hasResults}
+                    disabled={isSaveDisabled}
                     icon-name="utility:save">
                 </lightning-button>
             </div>

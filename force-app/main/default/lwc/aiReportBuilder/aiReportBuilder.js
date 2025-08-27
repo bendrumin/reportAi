@@ -54,6 +54,14 @@ export default class AiReportBuilder extends LightningElement {
                this.queryResults.results.length > 0;
     }
     
+    get isClearDisabled() {
+        return !this.hasResults;
+    }
+    
+    get isSaveDisabled() {
+        return !this.hasResults;
+    }
+    
     get hasMessages() {
         return this.messages && this.messages.length > 0;
     }

@@ -24,5 +24,4 @@
     </targetConfigs>
     <masterLabel>AI Report Builder</masterLabel>
     <description>Conversational AI interface for building Salesforce reports using natural language</description>
-    <icon>utility:chat</icon>
 </LightningComponentBundle>
