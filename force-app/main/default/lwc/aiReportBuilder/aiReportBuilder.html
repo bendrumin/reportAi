@@ -161,9 +161,9 @@
                             <tbody>
                                 <template for:each={displayedResults} for:item="record" for:index="index">
                                     <tr key={record.Id} class="slds-hint-parent">
-                                        <template for:each={tableHeaders} for:item="header">
-                                            <td key={header} class="slds-var-p-around_small">
-                                                {record.fieldValues[header]}
+                                        <template for:each={record.fieldValues} for:item="fieldValue" for:index="fieldIndex">
+                                            <td key={fieldIndex} class="slds-var-p-around_small">
+                                                {fieldValue}
                                             </td>
                                         </template>
                                     </tr>

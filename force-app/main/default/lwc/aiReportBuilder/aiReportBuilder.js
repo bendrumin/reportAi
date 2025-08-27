@@ -440,10 +440,10 @@ export default class AiReportBuilder extends LightningElement {
         // Process records to add fieldValues property for template access
         const processedResults = results.results.map(record => {
             const processedRecord = { ...record };
-            processedRecord.fieldValues = {};
+            processedRecord.fieldValues = [];
             
             this.tableHeaders.forEach(header => {
-                processedRecord.fieldValues[header] = record[header] || '-';
+                processedRecord.fieldValues.push(record[header] || '-');
             });
             
             return processedRecord;
