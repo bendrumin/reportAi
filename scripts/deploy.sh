@@ -63,25 +63,30 @@ check_prerequisites() {
     print_success "Prerequisites check completed"
 }
 
-# Function to authenticate to Salesforce
-authenticate_salesforce() {
-    print_status "Authenticating to Salesforce..."
+# Function to check and set default org
+check_salesforce_org() {
+    print_status "Checking Salesforce org configuration..."
     
-    # Check if already authenticated
-    if sf org list --json | grep -q "active"; then
-        print_success "Already authenticated to Salesforce"
-        return
-    fi
-    
-    print_status "Please authenticate to your Salesforce org..."
-    sf org login web
-    
-    if [ $? -eq 0 ]; then
-        print_success "Successfully authenticated to Salesforce"
-    else
-        print_error "Failed to authenticate to Salesforce"
+    # Check if default org is set
+    if sf config get target-org | grep -q "No default org set"; then
+        print_warning "No default org set. Please set your default org first:"
+        print_status "sf config set target-org your-org-alias"
+        print_status "Or run: sf org login web --set-default-dev-hub"
         exit 1
     fi
+    
+    # Get current default org
+    DEFAULT_ORG=$(sf config get target-org | head -1)
+    print_success "Using default org: $DEFAULT_ORG"
+    
+    # Verify org is accessible
+    if sf org display --json | grep -q "error"; then
+        print_error "Cannot access default org. Please check your authentication:"
+        print_status "sf org login web --set-default-dev-hub"
+        exit 1
+    fi
+    
+    print_success "Default org is accessible and ready for deployment"
 }
 
 # Function to deploy Salesforce components
@@ -207,14 +212,31 @@ show_instructions() {
     echo "For more information, see the README.md file"
 }
 
+# Function to show setup instructions
+show_setup_instructions() {
+    echo
+    echo "🔧 Setup Instructions:"
+    echo "====================="
+    echo
+    echo "Before running this script, ensure you have:"
+    echo "1. Salesforce CLI (sf) installed and authenticated"
+    echo "2. Default org set: sf org login web --set-default-dev-hub"
+    echo "3. Or set specific org: sf config set target-org your-org-alias"
+    echo
+    echo "To set your default org, run:"
+    echo "sf org login web --set-default-dev-hub"
+    echo
+}
+
 # Main execution
 main() {
     echo "🚀 Salesforce Conversational Report Builder - Deployment Script"
     echo "================================================================"
     echo
     
+    show_setup_instructions
     check_prerequisites
-    authenticate_salesforce
+    check_salesforce_org
     deploy_salesforce
     setup_ai_service
     show_instructions
